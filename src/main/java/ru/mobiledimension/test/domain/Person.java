@@ -5,13 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
-@Entity
-@Table
+//todo сделать этот класс сущностью, которая маппится на таблицу person
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,22 +35,8 @@ public class Person {
 
     private LocalDate birthday;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name="person_friend",
-            joinColumns = @JoinColumn(name = "person_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id"))
+    //todo реализовать связь многие-ко-многим через промежуточную таблицу person_friend
     private List<Person> friends;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Person person = (Person) o;
-        return documentNumber.equals(person.documentNumber);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(documentNumber);
-    }
+    //todo: если необходимо, реализовать equals и hashcode
 }

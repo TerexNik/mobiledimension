@@ -23,15 +23,8 @@ public class PersonService {
         this.personMapper = personMapper;
     }
 
-    @Transactional
     public Integer createPerson(PersonDTO personDTO) {
-        if (personRepository.isDocumentRegistered(personDTO.getDocumentNumber())) {
-            throw new DocumentAlreadyRegisteredException(personDTO.getDocumentNumber());
-        }
-
-        Person person = personMapper.toEntity(personDTO);
-        Person saved = personRepository.save(person);
-        return saved.getId();
+        //todo реализовать создание person'а, сделать проверку документа
     }
 
     @Transactional
@@ -51,16 +44,11 @@ public class PersonService {
     }
 
     public void delete(Integer id) {
-        personRepository.deleteById(id);
+        //todo реализовать удаление
     }
 
     public PersonDTO getPerson(Integer id) {
-        Person person = personRepository.getOne(id);
-        if (person == null) {
-            throw new PersonNotFoundException(id);
-        }
-
-        return personMapper.toFullDto(person);
+       //todo реализовать получение информации о person'е
     }
 
     public List<PersonSmallDto> getFriends(Integer id) {
@@ -77,11 +65,6 @@ public class PersonService {
 
     @Transactional
     public void addFriend(Integer id, Integer friendId) {
-        Person person = personRepository.findWithFriends(id);
-        Person newFriend = personRepository.getOne(friendId);
-        if (!person.getFriends().contains(newFriend)) {
-            person.getFriends().add(newFriend);
-        }
-        personRepository.save(person);
+       //todo реализовать одностороннее добавление в друзья. т.е. у person с id == id должен появиться друг с id == friendId, а у person с id == friendId - нет
     }
 }
