@@ -1,16 +1,19 @@
 package ru.mobiledimension.test.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mobiledimension.test.domain.Person;
 import ru.mobiledimension.test.dto.PersonDTO;
 import ru.mobiledimension.test.dto.PersonSmallDto;
+import ru.mobiledimension.test.exception.AlreadyHaveThisFriend;
 import ru.mobiledimension.test.exception.DocumentAlreadyRegisteredException;
 import ru.mobiledimension.test.exception.PersonNotFoundException;
 import ru.mobiledimension.test.mapper.PersonMapper;
 import ru.mobiledimension.test.repository.PersonRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PersonService {
@@ -18,13 +21,17 @@ public class PersonService {
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
 
+    @Autowired
     public PersonService(PersonRepository personRepository, PersonMapper personMapper) {
         this.personRepository = personRepository;
         this.personMapper = personMapper;
     }
 
     public Integer createPerson(PersonDTO personDTO) {
-        //todo реализовать создание person'а, сделать проверку документа
+        if (!personRepository.isDocumentRegistered(personDTO.getDocumentNumber()))
+            return personRepository.save(personMapper.toEntity(personDTO)).getId();
+        else
+            throw new DocumentAlreadyRegisteredException(personDTO.getDocumentNumber());
     }
 
     @Transactional
@@ -44,11 +51,11 @@ public class PersonService {
     }
 
     public void delete(Integer id) {
-        //todo реализовать удаление
+        personRepository.delete(personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(id)));
     }
 
     public PersonDTO getPerson(Integer id) {
-       //todo реализовать получение информации о person'е
+        return personMapper.toFullDto(personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(id)));
     }
 
     public List<PersonSmallDto> getFriends(Integer id) {
@@ -65,6 +72,10 @@ public class PersonService {
 
     @Transactional
     public void addFriend(Integer id, Integer friendId) {
-       //todo реализовать одностороннее добавление в друзья. т.е. у person с id == id должен появиться друг с id == friendId, а у person с id == friendId - нет
+        Person person = personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
+        if (person.getFriends().stream().map(Person::getId).filter(f -> Objects.equals(f, friendId)).toArray().length > 0)
+            throw new AlreadyHaveThisFriend(friendId);
+        else
+            person.getFriends().add(personRepository.findById(id).orElseThrow(() -> new PersonNotFoundException(friendId)));
     }
 }

@@ -1,14 +1,8 @@
 package ru.mobiledimension.test.web;
 
+import org.springframework.data.annotation.AccessType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.mobiledimension.test.dto.PersonDTO;
 import ru.mobiledimension.test.dto.PersonSmallDto;
 import ru.mobiledimension.test.service.PersonService;
@@ -18,9 +12,8 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 
-//todo для всех точек принимаемый и возвращаемый тип должен быть json в кодировке UTF-8
-
 @RestController
+@RequestMapping(produces = {"application/json; charset=UTF-8"}, consumes = {"application/json; charset=UTF-8"})
 public class PersonController {
 
     private final PersonService personService;
@@ -49,7 +42,7 @@ public class PersonController {
 
     @GetMapping("person")
     public ResponseEntity<List<PersonSmallDto>> getPersons() {
-        //todo реализовать получение списка person'ов
+        return ResponseEntity.ok(personService.getPersons());
     }
 
     @GetMapping("person/{id}")
@@ -72,6 +65,5 @@ public class PersonController {
     @ResponseStatus(OK)
     public void addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         personService.addFriend(id, friendId);
-
     }
 }
